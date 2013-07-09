@@ -391,7 +391,7 @@ namespace DoodleThings.Controllers
                 return BadRequest(e.Message);
             }
 
-            InitiateDatabaseForNewUser(user.Id);
+            InitiateDatabaseForNewUser(user.Id, user.UserName);
             ClaimsIdentity identity = await GetIdentityAsync(user.Id);
             string token = CreateAccessToken(identity);
 
@@ -444,7 +444,7 @@ namespace DoodleThings.Controllers
                 return BadRequest(e.ToString());
             }
 
-            InitiateDatabaseForNewUser(user.Id);
+            InitiateDatabaseForNewUser(user.Id, user.UserName);
             ClaimsIdentity identity = await GetIdentityAsync(user.Id);
             string token = CreateAccessToken(identity);
 
@@ -455,29 +455,12 @@ namespace DoodleThings.Controllers
         /// Initiate a new todo list for new user
         /// </summary>
         /// <param name="userName"></param>
-        internal static void InitiateDatabaseForNewUser(string userName)
+        internal static void InitiateDatabaseForNewUser(string userId, string userName)
         {
-            using (TodoDbContext db = new TodoDbContext())
+            using (var db = new ProjectAContext())
             {
-                TodoList todoList = new TodoList();
-                todoList.UserId = userName;
-                todoList.Title = "My Todo List #1";
-                todoList.Todos = new List<TodoItem>();
-                db.TodoLists.Add(todoList);
-                db.SaveChanges();
-
-                todoList.Todos.Add(new TodoItem()
-                {
-                    Title = "Todo item #1",
-                    TodoListId = todoList.TodoListId,
-                    IsDone = false
-                });
-                todoList.Todos.Add(new TodoItem()
-                {
-                    Title = "Todo item #2",
-                    TodoListId = todoList.TodoListId,
-                    IsDone = false
-                });
+                UserInfo userInfo = new UserInfo(userId, userName);
+                db.UserInfos.Add(userInfo);
                 db.SaveChanges();
             }
         }
