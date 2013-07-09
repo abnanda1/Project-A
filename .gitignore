@@ -1,0 +1,14 @@
+[Oo]bj/
+[Bb]in/
+TestResults/
+packages/
+_Resharper*/
+_AzurePackage/
+msbuild.log
+*.ncrunchsolution
+*.user
+*.suo
+*.cache
+*.bak
+*.log
+*.bat
