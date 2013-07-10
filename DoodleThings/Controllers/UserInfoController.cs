@@ -16,10 +16,15 @@ namespace DoodleThings.Controllers
         // GET api/userinfo/1
         public UserInfo GetRandomAvailablePlayer(string userName)
         {
-         //Get all ready to play users except yourself and return one random userinfo
-           var allUsers = ctx.UserInfos.Where( u => u.ReadyToPlay == true && u.UserName != userName).ToList();
-           Random randNum = new Random();
-           return allUsers[randNum.Next(allUsers.Count)];
+            UserInfo user = null;
+            //Get all ready to play users except yourself and return one random userinfo
+            var allUsers = ctx.UserInfos.Where( u => u.ReadyToPlay == true && u.UserName != userName).ToList();
+            if (allUsers != null)
+            {
+               Random randNum = new Random();
+               user = allUsers[randNum.Next(allUsers.Count)];
+            }
+            return user;
         }
 
         // POST api/userinfo
