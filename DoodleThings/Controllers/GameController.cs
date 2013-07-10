@@ -21,12 +21,12 @@ namespace DoodleThings.Controllers
         [HttpGet("{id}", RouteName = "Game")]
         public Game GetGame(string userId)
         {
-            return ctx.Games.FirstOrDefault(x => x.User1Id == userId || x.User2Id == userId);
+            return ctx.Games.FirstOrDefault(x => x.DrawerUserId == userId || x.GuesserUserId == userId);
         }
 
         // POST api/Game
         [HttpPost("")]
-        public HttpResponseMessage PostGame(string user1, string user2)
+        public HttpResponseMessage PostGame(string drawerUserId, string guesserUserId)
         {
             Game myGame = new Game();
             if (!ModelState.IsValid)
@@ -35,28 +35,21 @@ namespace DoodleThings.Controllers
             }
 
             var userId = User.Identity.GetUserId();
-            //If userId is not equal to either user1 or user2 then unauthorized else add a game with user1 and user2
-            if (userId.Equals(user1) || userId.Equals(user2))
+            //If userId is not equal to either drawerUserId or guesserUserId then unauthorized else add a game with drawerUserId and guesserUserId
+            if (userId.Equals(drawerUserId) || userId.Equals(guesserUserId))
             {
-                UserInfo userInfo1 =  ctx.UserInfos.FirstOrDefault(u1 => u1.UserName == user1); 
-                UserInfo userInfo2 =  ctx.UserInfos.FirstOrDefault(u2 => u2.UserName == user2);
-                myGame.User1 = userInfo1;
-                myGame.User2 = userInfo2;
+                UserInfo drawerUserInfo =  ctx.UserInfos.FirstOrDefault(u1 => u1.UserInfoId == drawerUserId);
+                UserInfo guesserUserInfo = ctx.UserInfos.FirstOrDefault(u2 => u2.UserInfoId == guesserUserId);
+                myGame.DrawerUser = drawerUserInfo;
+                myGame.GuesserUser = guesserUserInfo;
 
-                var questions = ctx.Questions.AsEnumerable();
-                List<Question> qsToUse = new List<Question>();
+                var questionsAlreadyUsed = drawerUserInfo.QuestionsAlreadyUsed.Union(guesserUserInfo.QuestionsAlreadyUsed);
+                List<Question> qsToUse = ctx.Questions.Where(q => (!questionsAlreadyUsed.Contains(q))).ToList();
 
-                foreach(Question q in questions)
+                // if list is empty
+                if (qsToUse == null || qsToUse.Count == 0)
                 {
-                    //If Question q is used already by user1 or user2, don't add it to questions list
-                    if (userInfo1.QuestionsAlreadyUsed.Contains(q) || userInfo2.QuestionsAlreadyUsed.Contains(q))
-                    {
-                        //DO NOTHING
-                    }
-                    else
-                    {
-                        qsToUse.Add(q);
-                    }
+                    return Request.CreateErrorResponse(HttpStatusCode.ExpectationFailed, ModelState);
                 }
 
                 //Get a random question from qsToUse List
@@ -66,14 +59,16 @@ namespace DoodleThings.Controllers
 
                 //Add the question to myGame
                 myGame.Question = currentQ;
-                myGame.QuestionId = currentQ.QuestionId;
+                
+                // shouldn't have to do both
+                //myGame.QuestionId = currentQ.QuestionId;
 
-                myGame.State = State.InPlay;
+                myGame.State = GameState.InPlay;
                 myGame.StartedAt = DateTime.Now;
 
-                //Also update user1 and user2's questions already asked list
-                userInfo1.QuestionsAlreadyUsed.Add(currentQ);
-                userInfo2.QuestionsAlreadyUsed.Add(currentQ);
+                //Also update questions already asked lists
+                drawerUserInfo.QuestionsAlreadyUsed.Add(currentQ);
+                guesserUserInfo.QuestionsAlreadyUsed.Add(currentQ);
 
                 try
                 {
@@ -96,7 +91,7 @@ namespace DoodleThings.Controllers
 
         // PUT api/Game/5
         [HttpPut("{id}")]
-        public IHttpActionResult UpdateGame(int id, Game myGame)
+        public IHttpActionResult UpdateGame(int id, Game myGame, [FromBody]int pointsEarned)
         {
             if (!ModelState.IsValid)
             {
@@ -108,21 +103,23 @@ namespace DoodleThings.Controllers
                 return StatusCode(HttpStatusCode.BadRequest);
             }
 
-            if (!String.Equals(ctx.Entry(myGame).Entity.User1Id, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
-                !String.Equals(ctx.Entry(myGame).Entity.User2Id, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase))
+            if (!String.Equals(ctx.Entry(myGame).Entity.DrawerUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
+                !String.Equals(ctx.Entry(myGame).Entity.GuesserUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase))
             {
                 // Trying to modify a record that does not belong to the user
                 return StatusCode(HttpStatusCode.Unauthorized);
             }
 
-            // Need to detach to avoid duplicate primary key exception when SaveChanges is called
-            ctx.Entry(myGame).State = EntityState.Detached;
-            ctx.Entry(myGame).State = EntityState.Modified;
+            // shouldn't need to do this - I've updated the key to be non-database-generated
+            //// Need to detach to avoid duplicate primary key exception when SaveChanges is called
+            //ctx.Entry(myGame).State = EntityState.Detached;
+            //ctx.Entry(myGame).State = EntityState.Modified;
 
-            //TO DO: if mygame state is finished then we need to update pointed earned for both users
-            if (myGame.State == State.Completed)
+            //if mygame state is finished then we need to update points earned for both users
+            if (myGame.State == GameState.Completed)
             {
-                //TO DO: We need to know who the guesser or drawer is; so we can assign guesser/drawer points appropriately to users
+                myGame.DrawerUser.DrawerPoints += pointsEarned;
+                myGame.GuesserUser.GuesserPoints += pointsEarned;
             }
 
             try
