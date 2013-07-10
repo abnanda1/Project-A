@@ -49,9 +49,10 @@ namespace DoodleThings.Controllers
                 return StatusCode(HttpStatusCode.BadRequest);
             }
 
-            // Need to detach to avoid duplicate primary key exception when SaveChanges is called
-            ctx.Entry(question).State = EntityState.Detached;
-            ctx.Entry(question).State = EntityState.Modified;
+            // shouldn't need to do this - I've updated the key to be non-database-generated
+            //// Need to detach to avoid duplicate primary key exception when SaveChanges is called
+            //ctx.Entry(question).State = EntityState.Detached;
+            //ctx.Entry(question).State = EntityState.Modified;
 
             try
             {

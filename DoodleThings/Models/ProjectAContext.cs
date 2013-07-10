@@ -18,6 +18,12 @@ namespace DoodleThings.Models
         {
         }
 
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            Database.SetInitializer<ProjectAContext>(new CreateDatabaseIfNotExists<ProjectAContext>());
+            base.OnModelCreating(modelBuilder);
+        }
+
         public DbSet<UserInfo> UserInfos { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<Question> Questions { get; set;}
