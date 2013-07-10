@@ -1,0 +1,44 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="~/Scripts/jquery-1.8.2.min.js"></script>
+    <script src="~/Scripts/jquery.signalR-1.1.2.min.js"></script>
+    <script src="/signalr/hubs"></script>
+    <script src="~/Scripts/DrawingBoard.js"></script>
+    <style>
+        div {
+            margin: 3px;
+        }
+
+        canvas {
+            border: 2px solid #808080;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <div>
+            <label for="color">Color: </label>
+            <select id="color">
+                <option>black</option>
+                <option>red</option>
+                <option>green</option>
+                <option>blue</option>
+                <option>yellow</option>
+                <option>pink</option>
+            </select>
+        </div>
+        <canvas id="canvas" width="300" height="300"></canvas>
+        <div>
+            <button id="clear">Clear canvas</button>
+        </div>
+    </div>
+</body>
+
+</html>

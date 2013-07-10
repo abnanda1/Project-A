@@ -11,6 +11,7 @@ namespace DoodleThings
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
+            RouteTable.Routes.MapHubs();
 
             IdentityConfig.ConfigureIdentity();
             WebApiConfig.Register(GlobalConfiguration.Configuration);
