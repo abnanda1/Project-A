@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Web.Http;
 using DoodleThings.Models;
 using Microsoft.AspNet.Identity;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 
 namespace DoodleThings.Controllers
 {
@@ -15,50 +17,45 @@ namespace DoodleThings.Controllers
     {
         private ProjectAContext ctx = new ProjectAContext();
 
-        // GET api/Questions/1
-        [HttpGet("")]
-        public IEnumerable<Question> GetQuestionsForUser()
-        {
+        //// GET api/Questions/1
+        //[HttpGet("")]
+        //public IEnumerable<Question> GetQuestionsForUser()
+        //{
 
-            string cachedUserId = User.Identity.GetUserId();
-            Models.UserInfo userInfo = ctx.UserInfos.FirstOrDefault(ui => ui.UserInfoId == cachedUserId);
-            return ctx.Questions.Where(q => !q.UsersWhoHaveUsedThis.Contains(userInfo));
+        //    string cachedUserId = User.Identity.GetUserId();
+        //    Models.UserInfo userInfo = ctx.UserInfos.FirstOrDefault(ui => ui.UserInfoId == cachedUserId);
+        //    return ctx.Questions.Where(q => !q.UsersWhoHaveUsedThis.Contains(userInfo));
+        //}
+
+        // GET api/Questions
+        [HttpGet("")]
+        public IEnumerable<Question> GetAllQuestions()
+        {
+            return ctx.Questions.AsEnumerable();
         }
 
-        // PUT api/Todo/5
-        [HttpPut("{id}", RouteName = "TodoItem")]
-        public IHttpActionResult PutTodoItem(int id, TodoItemViewModel todoItemDto)
+
+        // PUT api/question/5
+        [HttpPut("{id}", RouteName = "Question")]
+        public IHttpActionResult UpdateQuestion(int id, Question question)
         {
             if (!ModelState.IsValid)
             {
                 return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
-            if (id != todoItemDto.TodoItemId)
+            if (id != question.QuestionId)
             {
                 return StatusCode(HttpStatusCode.BadRequest);
             }
 
-            TodoItem todoItem = todoItemDto.ToEntity();
-            TodoList todoList = db.TodoLists.Find(todoItem.TodoListId);
-            if (todoList == null)
-            {
-                return StatusCode(HttpStatusCode.NotFound);
-            }
-
-            if (!String.Equals(todoList.UserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase))
-            {
-                // Trying to modify a record that does not belong to the user
-                return StatusCode(HttpStatusCode.Unauthorized);
-            }
-
             // Need to detach to avoid duplicate primary key exception when SaveChanges is called
-            db.Entry(todoList).State = EntityState.Detached;
-            db.Entry(todoItem).State = EntityState.Modified;
+            ctx.Entry(question).State = EntityState.Detached;
+            ctx.Entry(question).State = EntityState.Modified;
 
             try
             {
-                db.SaveChanges();
+                ctx.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -68,74 +65,53 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
 
-        // POST api/Todo
+        // POST api/question
         [HttpPost("")]
-        public IHttpActionResult PostTodoItem(TodoItemViewModel todoItemDto)
+        public IHttpActionResult PostQuestion(Question question)
         {
             if (!ModelState.IsValid)
             {
                 return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
-            TodoList todoList = db.TodoLists.Find(todoItemDto.TodoListId);
-            if (todoList == null)
-            {
-                return StatusCode(HttpStatusCode.NotFound);
-            }
-
-            if (!String.Equals(todoList.UserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase))
-            {
-                // Trying to add a record that does not belong to the user
-                return StatusCode(HttpStatusCode.Unauthorized);
-            }
-
-            TodoItem todoItem = todoItemDto.ToEntity();
-
             // Need to detach to avoid loop reference exception during JSON serialization
-            db.Entry(todoList).State = EntityState.Detached;
-            db.TodoItems.Add(todoItem);
-            db.SaveChanges();
-            todoItemDto.TodoItemId = todoItem.TodoItemId;
+            ctx.Entry(question).State = EntityState.Detached;
+            ctx.Questions.Add(question);
+            ctx.SaveChanges();
+            
 
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, todoItemDto);
-            response.Headers.Location = new Uri(Url.Link("TodoItem", new { id = todoItemDto.TodoItemId }));
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, question);
+            response.Headers.Location = new Uri(Url.Link("Question", new { id = question.QuestionId }));
             return Message(response);
         }
 
-        // DELETE api/Todo/5
+        // DELETE api/question/5
         [HttpDelete("{id}")]
-        public IHttpActionResult DeleteTodoItem(int id)
+        public IHttpActionResult DeleteQuestion(int id)
         {
-            TodoItem todoItem = db.TodoItems.Find(id);
-            if (todoItem == null)
+            Question question = ctx.Questions.Find(id);
+            if (question == null)
             {
                 return StatusCode(HttpStatusCode.NotFound);
             }
 
-            if (!String.Equals(db.Entry(todoItem.TodoList).Entity.UserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase))
-            {
-                // Trying to delete a record that does not belong to the user
-                return StatusCode(HttpStatusCode.Unauthorized);
-            }
-
-            TodoItemViewModel todoItemDto = new TodoItemViewModel(todoItem);
-            db.TodoItems.Remove(todoItem);
+            ctx.Questions.Remove(question);
 
             try
             {
-                db.SaveChanges();
+                ctx.SaveChanges();
             }
             catch (DbUpdateConcurrencyException)
             {
                 return StatusCode(HttpStatusCode.InternalServerError);
             }
 
-            return Content(HttpStatusCode.OK, todoItemDto);
+            return Content(HttpStatusCode.OK, question);
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            ctx.Dispose();
             base.Dispose(disposing);
         }
     }
