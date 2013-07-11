@@ -15,8 +15,8 @@ namespace DoodleThings
 
             routes.MapRoute(
                 name: "Default",
-                url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                url: "{controller}/{action}/{id}/{p1}/{p2}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional , p1 = UrlParameter.Optional, p2 = UrlParameter.Optional }
             );
         }
     }

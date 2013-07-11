@@ -1,0 +1,87 @@
+@{
+    ViewBag.Title = "My DOODLE List";
+}
+
+@*<div data-bind="with: loading">Loading...</div>*@
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/knockout")
+    @Scripts.Render("~/bundles/jqueryval")
+    @*@Scripts.Render("~/bundles/todo")*@
+}
+
+<script src="~/Scripts/jquery-1.8.2.min.js"></script>
+<script src="~/Scripts/jquery.signalR-1.1.2.min.js"></script>
+<script src="/signalr/hubs"></script>
+<script src="~/Scripts/DrawingBoard.js"></script>
+<script src="~/Scripts/jquery.countdown.js"></script>
+
+
+<div style="display: none" data-bind="visible: true">
+    @*<div id="userSettings" data-bind="with: user">
+        Hello, <a href="#" data-bind="text: name, click: manage"></a>
+        &nbsp;<a href="#" data-bind="click: logOff">Log off</a>
+    </div>*@
+
+
+    @*<link href="~/Content/jquery.countdown.css" rel="stylesheet" />*@
+
+    <div id="body">
+        <header>
+            <h1>@ViewBag.Title</h1>
+        </header>
+
+        <div id="main-content">
+            <div data-bind="foreach: errors">
+                <p class="error" data-bind="text: $data"></p>
+            </div>
+
+            <div>
+
+                <style>
+                    div {
+                        margin: 3px;
+                    }
+
+                    canvas {
+                        border: 2px solid #808080;
+                    }
+                </style>
+                <div>
+                    <div>
+                        <label for="color">Color: </label>
+                        <select id="color">
+                            <option>black</option>
+                            <option>red</option>
+                            <option>green</option>
+                            <option>blue</option>
+                            <option>yellow</option>
+                            <option>pink</option>
+                        </select>
+                    </div>
+                    <div id="timer"></div>
+                    <canvas id="canvas" width="300" height="300"></canvas>
+                    <div>
+                        <button id="clear">Clear canvas</button>
+                    </div>
+                </div>
+            </div>
+
+            @*<!-- /ko -->
+            <!-- ko with: login -->
+            @Html.Partial("_Login")
+            <!-- /ko -->
+            <!-- ko with: register -->
+            @Html.Partial("_Register")
+            <!-- /ko -->
+            <!-- ko with: registerExternal -->
+            @Html.Partial("_RegisterExternal")
+            <!-- /ko -->
+            <!-- ko with: manage -->
+            @Html.Partial("_Manage")
+           <!-- /ko -->*@
+        </div>
+    </div>
+</div>
+

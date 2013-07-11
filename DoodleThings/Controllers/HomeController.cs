@@ -16,5 +16,10 @@ namespace DoodleThings.Controllers
         {
             return View();
         }
+
+        public ActionResult Doodle()
+        {
+            return View();
+        }
     }
 }

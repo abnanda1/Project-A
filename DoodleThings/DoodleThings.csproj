@@ -212,6 +212,9 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\DoodleChallengeController.cs" />
+    <Compile Include="Controllers\DoodlePlayerController.cs" />
+    <Compile Include="Controllers\DoodleSessionController.cs" />
     <Compile Include="Controllers\GameController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\QuestionsController.cs" />
@@ -224,6 +227,9 @@
     <Compile Include="Hubs\DrawingBoard.cs" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\DoodleViewModels.cs" />
+    <Compile Include="Models\DoodleDbContext.cs" />
+    <Compile Include="Models\DoodleDataModels.cs" />
     <Compile Include="Models\OAuthBindingModels.cs" />
     <Compile Include="Models\ProjectAContext.cs" />
     <Compile Include="Models\ProjectADataModel.cs" />
@@ -306,9 +312,12 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="Views\Home\Drawing.cshtml" />
+    <Content Include="Views\Home\doodle.cshtml" />
+    <Content Include="Views\Home\_DoodlePlay.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Doodle\" />
     <Folder Include="Views\UserInfo\" />
   </ItemGroup>
   <ItemGroup>
