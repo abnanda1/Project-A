@@ -12,6 +12,7 @@ namespace DoodleThings.Models
         {
             UserInfoId = userId;
             UserName = userName;
+            ConnectionId = null;
             DrawerPoints = 0;
             GuesserPoints = 0;
             LockedOut = false;
@@ -22,6 +23,7 @@ namespace DoodleThings.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public string UserInfoId { get; set; }
         public string UserName { get; set; }
+        public string ConnectionId { get; set; }
         public bool LockedOut { get; set; }
         public int DrawerPoints { get; set; }
         public int GuesserPoints { get; set; }

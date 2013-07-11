@@ -34,6 +34,13 @@ namespace DoodleThings.Controllers
             return ctx.Questions.AsEnumerable();
         }
 
+        // GET api/Questions
+        [HttpGet("{id}")]
+        public Question GetQuestionById(int questionId)
+        {
+            return ctx.Questions.FirstOrDefault(q => q.QuestionId == questionId);
+        }
+
 
         // PUT api/question/5
         [HttpPut("{id}", RouteName = "Question")]
@@ -68,21 +75,26 @@ namespace DoodleThings.Controllers
 
         // POST api/question
         [HttpPost("")]
-        public IHttpActionResult PostQuestion(Question question)
+        public IHttpActionResult CreateQuestion([FromBody]string hintText, [FromBody]string answerText, [FromBody]int maxPoints)
         {
             if (!ModelState.IsValid)
             {
                 return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
-            // Need to detach to avoid loop reference exception during JSON serialization
-            ctx.Entry(question).State = EntityState.Detached;
-            ctx.Questions.Add(question);
+            var q = new Question()
+            {
+                HintText = hintText,
+                AnswerText = answerText,
+                MaxPoints = maxPoints,
+                UsersWhoHaveUsedThis = new HashSet<UserInfo>()
+            };
+            ctx.Questions.Add(q);
             ctx.SaveChanges();
             
 
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, question);
-            response.Headers.Location = new Uri(Url.Link("Question", new { id = question.QuestionId }));
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, q);
+            response.Headers.Location = new Uri(Url.Link("Question", new { id = q.QuestionId }));
             return Message(response);
         }
 
