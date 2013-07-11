@@ -9,16 +9,47 @@ using System.Web.Http;
 
 namespace DoodleThings.Controllers
 {
+    [Authorize]
+    [RoutePrefix("api/UserInfo")]
     public class UserInfoController : ApiController
     {
         private ProjectAContext ctx = new ProjectAContext();
-        
+
+        // This is used to create a new user
         // GET api/userinfo/1
+        [HttpGet("{userId, userName}")]
+        public UserInfo CreateNewLoggedOutUser(string userId, string userName)
+        {
+            try
+            {
+                UserInfo user = new UserInfo()
+                {
+                    UserInfoId = userId,
+                    UserName = userName,
+                    DrawerPoints = 0,
+                    GuesserPoints = 0,
+                    LockedOut = false,
+                    State = UserState.LoggedOut
+                };
+                ctx.UserInfos.Add(user);
+                ctx.SaveChanges();
+
+                return user;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return null;
+            }
+        }
+
+        // This is called when 2nd player logs in to assign player to play with (first player will also call but will get null)
+        // GET api/userinfo/2
+        [HttpGet("{userName}")]
         public UserInfo GetRandomAvailablePlayer(string userName)
         {
             UserInfo user = null;
             //Get all ready to play users except yourself and return one random userinfo
-            var allUsers = ctx.UserInfos.Where( u => u.State == UserState.ReadyToPlay && u.UserName != userName).ToList();
+            var allUsers = ctx.UserInfos.Where( u => u.State == UserState.ReadyToPlay && u.UserName != userName && u.LockedOut == false).ToList();
             if (allUsers != null)
             {
                Random randNum = new Random();
@@ -27,15 +58,23 @@ namespace DoodleThings.Controllers
             return user;
         }
 
+        // This is used by the admin user to list all users
+        // GET api/userinfo/2
+        public IEnumerable<UserInfo> GetAllPlayers()
+        {
+            return ctx.UserInfos.AsEnumerable();
+        }
+
         // POST api/userinfo
         public void Post([FromBody]string value)
         {
                 //DO NOTHING
         }
 
+        // This is used by a user when they click the "ReadyToPlay" button
         // PUT api/userinfo/5
         [HttpPut("{userName}", RouteName = "UserInfo")]
-        public IHttpActionResult UpdatePlayingState(string userName, [FromBody]bool readyToPlay)
+        public IHttpActionResult UpdateReadyToPlay(string userName, [FromBody]bool readyToPlay)
         {
             if (!ModelState.IsValid)
             {
@@ -62,7 +101,8 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
 
-        // PUT api/userinfo/5
+        //This is used when the user logs out
+        // PUT api/userinfo/6
         [HttpPut("{userName}", RouteName = "UserInfo")]
         public IHttpActionResult LogOutUser(string userName)
         {
@@ -85,6 +125,32 @@ namespace DoodleThings.Controllers
 
             return StatusCode(HttpStatusCode.OK);
         }
+
+        // This is used by the admin user to prevent a user from playing
+        // PUT api/userinfo/6
+        [HttpPut("{userName}", RouteName = "UserInfo")]
+        public IHttpActionResult LockOutUser(string userName, [FromBody]bool isLockedOut)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+            }
+
+            var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+            user.LockedOut = isLockedOut;
+
+            try
+            {
+                ctx.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(HttpStatusCode.InternalServerError);
+            }
+
+            return StatusCode(HttpStatusCode.OK);
+        }
+        
         protected override void Dispose(bool disposing)
         {
             ctx.Dispose();

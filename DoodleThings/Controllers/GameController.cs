@@ -17,6 +17,7 @@ namespace DoodleThings.Controllers
     {
         private ProjectAContext ctx = new ProjectAContext();
         
+        // This is used to find a game that the user is currently playing
         // GET api/Game/kirthik
         [HttpGet("{id}", RouteName = "Game")]
         public Game GetGame(string userId)
@@ -24,9 +25,10 @@ namespace DoodleThings.Controllers
             return ctx.Games.FirstOrDefault(x => x.DrawerUserId == userId || x.GuesserUserId == userId);
         }
 
+        // This should be called when we have agreed on 2 users and they want to create a game
         // POST api/Game
         [HttpPost("")]
-        public HttpResponseMessage PostGame(string drawerUserId, string guesserUserId)
+        public HttpResponseMessage CreateNewUnstartedGame(string drawerUserId, string guesserUserId)
         {
             Game myGame = new Game();
             if (!ModelState.IsValid)
@@ -63,8 +65,7 @@ namespace DoodleThings.Controllers
                 // shouldn't have to do both
                 //myGame.QuestionId = currentQ.QuestionId;
 
-                myGame.State = GameState.InPlay;
-                myGame.StartedAt = DateTime.Now;
+                myGame.State = GameState.NotStarted;
 
                 //Also update questions already asked lists
                 drawerUserInfo.QuestionsAlreadyUsed.Add(currentQ);
@@ -89,9 +90,10 @@ namespace DoodleThings.Controllers
             return response;
         }
 
+        // This should be called when users have both clicked ReadyToStart
         // PUT api/Game/5
         [HttpPut("{id}")]
-        public IHttpActionResult UpdateGame(int id, Game myGame, [FromBody]int pointsEarned)
+        public IHttpActionResult StartGame(int id, Game myGame)
         {
             if (!ModelState.IsValid)
             {
@@ -115,12 +117,101 @@ namespace DoodleThings.Controllers
             //ctx.Entry(myGame).State = EntityState.Detached;
             //ctx.Entry(myGame).State = EntityState.Modified;
 
-            //if mygame state is finished then we need to update points earned for both users
-            if (myGame.State == GameState.Completed)
+            //mygame state should be NotStarted - if not then error
+            if (myGame.State != GameState.NotStarted)
             {
-                myGame.DrawerUser.DrawerPoints += pointsEarned;
-                myGame.GuesserUser.GuesserPoints += pointsEarned;
+                return StatusCode(HttpStatusCode.NotAcceptable); 
             }
+
+            myGame.State = GameState.InPlay;
+            myGame.StartedAt = DateTime.Now;
+
+            try
+            {
+                ctx.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(HttpStatusCode.InternalServerError);
+            }
+
+            return StatusCode(HttpStatusCode.OK);
+        }
+
+        // This is called when the guesser successfully guesses before the game times out
+        // PUT api/Game/5
+        [HttpPut("{id}")]
+        public IHttpActionResult GameSuccessfullyGuessed(int id, Game myGame, [FromBody]int pointsEarned)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+            }
+
+            if (id != myGame.GameId)
+            {
+                return StatusCode(HttpStatusCode.BadRequest);
+            }
+
+            if (!(String.Equals(ctx.Entry(myGame).Entity.DrawerUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
+                  String.Equals(ctx.Entry(myGame).Entity.GuesserUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase)))
+            {
+                // Trying to modify a record that does not belong to the user
+                return StatusCode(HttpStatusCode.Unauthorized);
+            }
+
+            // shouldn't need to do this - I've updated the key to be non-database-generated
+            //// Need to detach to avoid duplicate primary key exception when SaveChanges is called
+            //ctx.Entry(myGame).State = EntityState.Detached;
+            //ctx.Entry(myGame).State = EntityState.Modified;
+
+            //mygame state should be InPlay (we might have timed out on the server through e.g. clients not sending the TimedOut message)
+            if (myGame.State != GameState.InPlay)
+            {
+                return StatusCode(HttpStatusCode.NotAcceptable);
+            }
+
+            //mygame state is finished then we need to update points earned for both users
+            myGame.State = GameState.Completed;
+            myGame.DrawerUser.DrawerPoints += pointsEarned;
+            myGame.GuesserUser.GuesserPoints += pointsEarned;
+
+            try
+            {
+                ctx.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(HttpStatusCode.InternalServerError);
+            }
+
+            return StatusCode(HttpStatusCode.OK);
+        }
+
+        // This is called when the guesser successfully guesses before the game times out
+        // PUT api/Game/6
+        [HttpPut("{id}")]
+        public IHttpActionResult GameTimedOut(int id, Game myGame)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+            }
+
+            if (id != myGame.GameId)
+            {
+                return StatusCode(HttpStatusCode.BadRequest);
+            }
+
+            if (!(String.Equals(ctx.Entry(myGame).Entity.DrawerUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
+                  String.Equals(ctx.Entry(myGame).Entity.GuesserUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase)))
+            {
+                // Trying to modify a record that does not belong to the user
+                return StatusCode(HttpStatusCode.Unauthorized);
+            }
+
+            //mygame state is finished then we need to update points earned for both users
+            myGame.State = GameState.TimedOut;
 
             try
             {
