@@ -12,7 +12,6 @@ namespace DoodleThings.Models
         {
             UserInfoId = userId;
             UserName = userName;
-            State = UserState.LoggedIn;
             DrawerPoints = 0;
             GuesserPoints = 0;
             LockedOut = false;
