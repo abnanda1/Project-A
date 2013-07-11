@@ -102,7 +102,6 @@ namespace DoodleThings.Controllers
         }
 
 
-
         public void UpdateConnectionId(string userName, string connectionId)
         {
 
@@ -110,7 +109,6 @@ namespace DoodleThings.Controllers
 
         //This is used when the user logs out
         // PUT api/userinfo/6
-
         [HttpPut("{userName}", RouteName = "UserInfo")]
         public IHttpActionResult LogOutUser(string userName)
         {
@@ -159,7 +157,6 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
         
-
         protected override void Dispose(bool disposing)
         {
             ctx.Dispose();
