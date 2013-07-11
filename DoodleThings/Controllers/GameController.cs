@@ -11,170 +11,120 @@ using System.Data.Entity.Infrastructure;
 
 namespace DoodleThings.Controllers
 {
-    [Authorize]
+ //   [Authorize]
     [RoutePrefix("api/Game")]
     public class GameController : ApiController
     {
         private ProjectAContext ctx = new ProjectAContext();
-        
-        // This is used to find a game that the user is currently playing
-        // GET api/Game/kirthik
-        [HttpGet("{id}", RouteName = "Game")]
-        public Game GetGame(string userId)
+
+        //Get all games that are NotStarted
+        [HttpGet("")]
+        public IEnumerable<Game> GetAllAvailableGames()
         {
-            return ctx.Games.FirstOrDefault(x => x.DrawerUserId == userId || x.GuesserUserId == userId);
+            return ctx.Games.Where(g => g.State == GameState.NotStarted);
         }
 
-        // This should be called when we have agreed on 2 users and they want to create a game
-        // POST api/Game
-        [HttpPost("")]
-        public HttpResponseMessage CreateNewUnstartedGame(string drawerUserId, string guesserUserId)
+        // This is used to find a game that the user is currently playing
+        [HttpGet("{userId}")]
+        public Game GetCurrentGameForPlayer(string userId)
         {
-            Game myGame = new Game();
-            if (!ModelState.IsValid)
+            return ctx.Games.FirstOrDefault(x => (x.DrawerUserId == userId || x.GuesserUserId == userId) && (x.State == GameState.InPlay || x.State == GameState.NotStarted) );
+        }
+
+        [HttpPost]
+        public IHttpActionResult AssignRandomAvailableGame(string userId)
+        {
+            Game myGame;
+            HttpResponseMessage response;
+            var games = ctx.Games.Include("DrawerUser").Where(g => g.State == GameState.NotStarted).ToList();
+
+            //If there aren't any games that are not started then create a new one
+            if (games == null || games.Count == 0)
             {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
-            }
-
-            var userId = User.Identity.GetUserId();
-            //If userId is not equal to either drawerUserId or guesserUserId then unauthorized else add a game with drawerUserId and guesserUserId
-            if (userId.Equals(drawerUserId) || userId.Equals(guesserUserId))
-            {
-                UserInfo drawerUserInfo =  ctx.UserInfos.FirstOrDefault(u1 => u1.UserInfoId == drawerUserId);
-                UserInfo guesserUserInfo = ctx.UserInfos.FirstOrDefault(u2 => u2.UserInfoId == guesserUserId);
-                myGame.DrawerUser = drawerUserInfo;
-                myGame.GuesserUser = guesserUserInfo;
-
-                var questionsAlreadyUsed = drawerUserInfo.QuestionsAlreadyUsed.Union(guesserUserInfo.QuestionsAlreadyUsed);
-                List<Question> qsToUse = ctx.Questions.Where(q => (!questionsAlreadyUsed.Contains(q))).ToList();
-
-                // if list is empty
-                if (qsToUse == null || qsToUse.Count == 0)
+                myGame = new Game()
                 {
-                    return Request.CreateErrorResponse(HttpStatusCode.ExpectationFailed, ModelState);
+                    Created = DateTime.Now,
+                    DrawerUserId = userId,
+                    GuesserUserId = userId,
+                    PointsEarned = 0,
+                    State = GameState.NotStarted,
+                };
+
+                ctx.Games.Add(myGame);
+            }
+            else
+            {
+                //TO DO: Think about scenatio where there are no questions.
+
+                //var questionsAlreadyUsed = myGame.DrawerUser.QuestionsAlreadyUsed.Union(myGame.GuesserUser.QuestionsAlreadyUsed);
+                //List<Question> qsToUse = ctx.Questions.Where(q => (!questionsAlreadyUsed.Contains(q))).ToList();
+
+                //if (qsToUse == null || qsToUse.Count == 0)
+                //{
+                //    return null;
+                //}
+
+                Random rand = new Random();
+                myGame = games[rand.Next(games.Count)];
+
+                if (myGame.DrawerUserId == userId && myGame.GuesserUserId == userId)
+                {
+                    response = Request.CreateResponse(HttpStatusCode.BadRequest, myGame);
+                    return Message(response);
                 }
+                //Change guesser of the game to current user. Keep drawer as is. Change game state to InPlay. Change Started time. Add a question
+                int randomInt = rand.Next(2);
+                if (randomInt == 0)
+                {
+                    myGame.GuesserUserId = userId;
+                }
+                else
+                {
+                    myGame.DrawerUserId = userId;
+                }
+                myGame.State = GameState.InPlay;
+                myGame.StartedAt = DateTime.Now;
+
 
                 //Get a random question from qsToUse List
                 Random randNum = new Random();
                 Question currentQ;
+
+                List<Question> qsToUse = ctx.Questions.ToList();
                 currentQ = qsToUse[randNum.Next(qsToUse.Count)];
 
                 //Add the question to myGame
                 myGame.Question = currentQ;
-                
-                // shouldn't have to do both
-                //myGame.QuestionId = currentQ.QuestionId;
-
-                myGame.State = GameState.NotStarted;
-
-                //Also update questions already asked lists
-                drawerUserInfo.QuestionsAlreadyUsed.Add(currentQ);
-                guesserUserInfo.QuestionsAlreadyUsed.Add(currentQ);
-
-                try
-                {
-                    ctx.SaveChanges();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    return Request.CreateResponse(HttpStatusCode.InternalServerError);
-                }
             }
-            else
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ModelState);
-            }
+            ctx.SaveChanges();
 
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created);
-            response.Headers.Location = new Uri(Url.Link("Game", new { id = myGame.GameId }));
-            return response;
-        }
-
-        // This should be called when users have both clicked ReadyToStart
-        // PUT api/Game/5
-        [HttpPut("{id}")]
-        public IHttpActionResult StartGame(int id, Game myGame)
-        {
-            if (!ModelState.IsValid)
-            {
-                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
-            }
-
-            if (id != myGame.GameId)
-            {
-                return StatusCode(HttpStatusCode.BadRequest);
-            }
-
-            if (!String.Equals(ctx.Entry(myGame).Entity.DrawerUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
-                !String.Equals(ctx.Entry(myGame).Entity.GuesserUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase))
-            {
-                // Trying to modify a record that does not belong to the user
-                return StatusCode(HttpStatusCode.Unauthorized);
-            }
-
-            // shouldn't need to do this - I've updated the key to be non-database-generated
-            //// Need to detach to avoid duplicate primary key exception when SaveChanges is called
-            //ctx.Entry(myGame).State = EntityState.Detached;
-            //ctx.Entry(myGame).State = EntityState.Modified;
-
-            //mygame state should be NotStarted - if not then error
-            if (myGame.State != GameState.NotStarted)
-            {
-                return StatusCode(HttpStatusCode.NotAcceptable); 
-            }
-
-            myGame.State = GameState.InPlay;
-            myGame.StartedAt = DateTime.Now;
-
-            try
-            {
-                ctx.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return StatusCode(HttpStatusCode.InternalServerError);
-            }
-
-            return StatusCode(HttpStatusCode.OK);
+            response = Request.CreateResponse(HttpStatusCode.Created, myGame);
+          //  response.Headers.Location = new Uri(Url.Link("Game", new { id = myGame.GameId }));
+            return Message(response);
         }
 
         // This is called when the guesser successfully guesses before the game times out
-        // PUT api/Game/5
-        [HttpPut("{id}")]
-        public IHttpActionResult GameSuccessfullyGuessed(int id, Game myGame, [FromBody]int pointsEarned)
+        //[HttpPut("api/Game/GameSuccessfullyGuessed/{gameId}/{pointsEarned}")]
+        [HttpPost]
+        public IHttpActionResult GameSuccessfullyGuessed([FromUri]int gameId, [FromUri]int pointsEarned)
         {
             if (!ModelState.IsValid)
             {
                 return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
-            if (id != myGame.GameId)
-            {
-                return StatusCode(HttpStatusCode.BadRequest);
-            }
+            Game myGame = ctx.Games.FirstOrDefault(g => g.GameId == gameId);
 
-            if (!(String.Equals(ctx.Entry(myGame).Entity.DrawerUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
-                  String.Equals(ctx.Entry(myGame).Entity.GuesserUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase)))
+            if (myGame == null)
             {
-                // Trying to modify a record that does not belong to the user
-                return StatusCode(HttpStatusCode.Unauthorized);
-            }
-
-            // shouldn't need to do this - I've updated the key to be non-database-generated
-            //// Need to detach to avoid duplicate primary key exception when SaveChanges is called
-            //ctx.Entry(myGame).State = EntityState.Detached;
-            //ctx.Entry(myGame).State = EntityState.Modified;
-
-            //mygame state should be InPlay (we might have timed out on the server through e.g. clients not sending the TimedOut message)
-            if (myGame.State != GameState.InPlay)
-            {
-                return StatusCode(HttpStatusCode.NotAcceptable);
+                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, "GameId cannot be null"));
             }
 
             //mygame state is finished then we need to update points earned for both users
             myGame.State = GameState.Completed;
             myGame.DrawerUser.DrawerPoints += pointsEarned;
             myGame.GuesserUser.GuesserPoints += pointsEarned;
+            myGame.PointsEarned = pointsEarned;
 
             try
             {
@@ -189,25 +139,19 @@ namespace DoodleThings.Controllers
         }
 
         // This is called when the guesser successfully guesses before the game times out
-        // PUT api/Game/6
-        [HttpPut("{id}")]
-        public IHttpActionResult GameTimedOut(int id, Game myGame)
+        [HttpPut("api/Game/GameTimedOut/{gameId}")]
+        public IHttpActionResult GameTimedOut(int gameId)
         {
             if (!ModelState.IsValid)
             {
                 return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
-            if (id != myGame.GameId)
-            {
-                return StatusCode(HttpStatusCode.BadRequest);
-            }
+            Game myGame = ctx.Games.FirstOrDefault(g => g.GameId == gameId);
 
-            if (!(String.Equals(ctx.Entry(myGame).Entity.DrawerUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase) ||
-                  String.Equals(ctx.Entry(myGame).Entity.GuesserUserId, User.Identity.GetUserId(), StringComparison.OrdinalIgnoreCase)))
+            if (myGame == null)
             {
-                // Trying to modify a record that does not belong to the user
-                return StatusCode(HttpStatusCode.Unauthorized);
+                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, "GameId cannot be null"));
             }
 
             //mygame state is finished then we need to update points earned for both users

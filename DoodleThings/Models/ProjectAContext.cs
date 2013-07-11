@@ -24,6 +24,8 @@ namespace DoodleThings.Models
 
             modelBuilder.Entity<Game>().HasRequired<UserInfo>(g => g.DrawerUser).WithMany().HasForeignKey(g => g.DrawerUserId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Game>().HasRequired<UserInfo>(g => g.GuesserUser).WithMany().HasForeignKey(g => g.GuesserUserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Game>().HasOptional<Question>(g => g.Question);
+            modelBuilder.Entity<UserInfo>().HasMany<Question>(g => g.QuestionsAlreadyUsed);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -41,9 +43,9 @@ namespace DoodleThings.Models
             var user2 = new UserInfo {UserInfoId="TestUser2", UserName="TestUser2", ConnectionId = null, DrawerPoints = 0, GuesserPoints = 0, LockedOut = false, QuestionsAlreadyUsed = new HashSet<Question>() };
             var user3 = new UserInfo { UserInfoId = "TestUser3", UserName = "TestUser3", ConnectionId = null, DrawerPoints = 0, GuesserPoints = 0, LockedOut = false, QuestionsAlreadyUsed = new HashSet<Question>() };
 
-            var q1 = new Question { HintText = "Test Hint 1", AnswerText = "Answer1", MaxPoints = 100, UsersWhoHaveUsedThis = new HashSet<UserInfo> { user1 } };
-            var q2 = new Question { HintText = "Test Hint 2", AnswerText = "Answer2", MaxPoints = 50, UsersWhoHaveUsedThis = new HashSet<UserInfo> { user2 } };
-            var q3 = new Question { HintText = "Test Hint 3", AnswerText = "Answer2", MaxPoints = 10, UsersWhoHaveUsedThis = new HashSet<UserInfo> { user3 } };
+            var q1 = new Question { HintText = "Test Hint 1", AnswerText = "Answer1", MaxPoints = 100};
+            var q2 = new Question { HintText = "Test Hint 2", AnswerText = "Answer2", MaxPoints = 50};
+            var q3 = new Question { HintText = "Test Hint 3", AnswerText = "Answer3", MaxPoints = 10};
 
             user1.QuestionsAlreadyUsed.Add(q1);
             user2.QuestionsAlreadyUsed.Add(q2);

@@ -87,7 +87,6 @@ namespace DoodleThings.Controllers
                 HintText = hintText,
                 AnswerText = answerText,
                 MaxPoints = maxPoints,
-                UsersWhoHaveUsedThis = new HashSet<UserInfo>()
             };
             ctx.Questions.Add(q);
             ctx.SaveChanges();

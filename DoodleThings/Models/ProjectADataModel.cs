@@ -38,7 +38,7 @@ namespace DoodleThings.Models
         public string AnswerText { get; set; }
         public int MaxPoints { get; set; } // i.e. difficulty level
 
-        public virtual ICollection<UserInfo> UsersWhoHaveUsedThis { get; set; }
+       // public virtual ICollection<UserInfo> UsersWhoHaveUsedThis { get; set; }
     }
 
     public class Game
@@ -49,7 +49,7 @@ namespace DoodleThings.Models
         public string GuesserUserId { get; set; }
         public UserInfo GuesserUser { get; set; }
 
-        public int QuestionId { get; set; }
+        public int? QuestionId { get; set; }
         public Question Question { get; set; }
         public int? PointsEarned { get; set; }
         public GameState State { get; set; }
