@@ -26,22 +26,14 @@ namespace DoodleThings.Models
         public bool LockedOut { get; set; }
         public int DrawerPoints { get; set; }
         public int GuesserPoints { get; set; }
-        public UserState State { get; set; }
 
         public virtual ICollection<Question> QuestionsAlreadyUsed { get; set; }
-    }
-
-    public enum UserState
-    {
-        LoggedOut,
-        LoggedIn,
-        ReadyToPlay
     }
 
     public class Question
     {
         public int QuestionId { get; set; }
-        public string QuestionText { get; set; }
+        public string HintText { get; set; }
         public string AnswerText { get; set; }
         public int MaxPoints { get; set; } // i.e. difficulty level
 
@@ -61,6 +53,7 @@ namespace DoodleThings.Models
         public int? PointsEarned { get; set; }
         public GameState State { get; set; }
         public DateTime? StartedAt { get; set; }
+        public DateTime Created { get; set; }
     }
 
     public enum GameState

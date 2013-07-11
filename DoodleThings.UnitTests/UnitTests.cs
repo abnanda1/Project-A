@@ -1,6 +1,9 @@
 ﻿using DoodleThings.Controllers;
-using System;
+using DoodleThings.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DoodleThings.UnitTests
 {
@@ -12,12 +15,5 @@ namespace DoodleThings.UnitTests
         {
         }
 
-        [TestMethod]
-        public void TestCreateNewUser()
-        {
-            var userController = new UserInfoController();
-            var id = DateTime.Now.ToString("yyyyMMddHHmmss");
-            userController.CreateNewLoggedOutUser(id, "TestUser" + id);
-        }
     }
 }

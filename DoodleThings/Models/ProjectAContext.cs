@@ -21,6 +21,10 @@ namespace DoodleThings.Models
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             Database.SetInitializer<ProjectAContext>(new CreateDatabaseIfNotExists<ProjectAContext>());
+
+            modelBuilder.Entity<Game>().HasRequired<UserInfo>(g => g.DrawerUser).WithMany().HasForeignKey(g => g.DrawerUserId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Game>().HasRequired<UserInfo>(g => g.GuesserUser).WithMany().HasForeignKey(g => g.GuesserUserId).WillCascadeOnDelete(false);
+
             base.OnModelCreating(modelBuilder);
         }
 
