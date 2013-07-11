@@ -61,6 +61,11 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
 
+        public void UpdateConnectionId(string userName, string connectionId)
+        {
+
+        }
+
         protected override void Dispose(bool disposing)
         {
             ctx.Dispose();

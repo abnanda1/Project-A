@@ -10,6 +10,8 @@
     <script src="~/Scripts/jquery.signalR-1.1.2.min.js"></script>
     <script src="/signalr/hubs"></script>
     <script src="~/Scripts/DrawingBoard.js"></script>
+    <script src="~/Scripts/jquery.countdown.js"></script>
+    <link href="~/Content/jquery.countdown.css" rel="stylesheet" />
     <style>
         div {
             margin: 3px;
@@ -34,6 +36,7 @@
                 <option>pink</option>
             </select>
         </div>
+        <div id="timer"></div>
         <canvas id="canvas" width="300" height="300"></canvas>
         <div>
             <button id="clear">Clear canvas</button>

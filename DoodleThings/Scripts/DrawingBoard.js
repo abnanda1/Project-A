@@ -1,5 +1,13 @@
 ﻿$(function () {
+
     var canvas = $("#canvas");
+    var hub = $.connection.drawingBoard;
+
+    $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: endGame });
+
+    hub.state.color = $("#color").val(); // Accessible from server 
+    var connected = false;
+
     var buttonPressed = false;
 
     canvas
@@ -32,11 +40,6 @@
         clearPoints();
     });
 
-    var hub = $.connection.drawingBoard;
-
-    hub.state.color = $("#color").val(); // Accessible from server 
-    var connected = false;
-
     // UI events 
     $("#color").change(function () {
         hub.state.color = $(this).val();
@@ -66,5 +69,14 @@
     $.connection.hub.start()
     .done(function () {
         connected = true;
+      
     });
+
+    hub.client.showAlert = function (msg) {
+        alert(msg);
+    }
+
+    function endGame() {
+        hub.server.endGame();
+    }
 });
