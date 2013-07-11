@@ -36,7 +36,7 @@ namespace DoodleThings.Controllers
 
         // GET api/Questions
         [HttpGet("{id}")]
-        public Question GetQuestionById(int questionId)
+        public Question GetQuestionByFromId(int questionId)
         {
             return ctx.Questions.FirstOrDefault(q => q.QuestionId == questionId);
         }

@@ -15,5 +15,11 @@ namespace DoodleThings.UnitTests
         {
         }
 
+        [TestMethod]
+        public void GetUserInfoFromId()
+        {
+            var userInfo = new UserInfoController().GetUserInfoFromId("TestUser1");
+            Debug.Assert(userInfo != null);
+        }
     }
 }
