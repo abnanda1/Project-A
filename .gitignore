@@ -12,3 +12,4 @@ msbuild.log
 *.bak
 *.log
 *.bat
+App_Data

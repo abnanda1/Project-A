@@ -107,55 +107,55 @@ namespace DoodleThings.Controllers
 
         }
 
-        //This is used when the user logs out
-        // PUT api/userinfo/6
-        [HttpPut("{userName}", RouteName = "UserInfo")]
-        public IHttpActionResult LogOutUser(string userName)
-        {
-            if (!ModelState.IsValid)
-            {
-                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
-            }
+        ////This is used when the user logs out
+        //// PUT api/userinfo/6
+        //[HttpPut("{userName}", RouteName = "UserInfo")]
+        //public IHttpActionResult LogOutUser(string userName)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+        //    }
 
-            var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
-            user.State = UserState.LoggedOut;
+        //    var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+        //    user.State = UserState.LoggedOut;
 
-            try
-            {
-                ctx.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return StatusCode(HttpStatusCode.InternalServerError);
-            }
+        //    try
+        //    {
+        //        ctx.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        return StatusCode(HttpStatusCode.InternalServerError);
+        //    }
 
-            return StatusCode(HttpStatusCode.OK);
-        }
+        //    return StatusCode(HttpStatusCode.OK);
+        //}
 
-        // This is used by the admin user to prevent a user from playing
-        // PUT api/userinfo/6
-        [HttpPut("{userName}", RouteName = "UserInfo")]
-        public IHttpActionResult LockOutUser(string userName, [FromBody]bool isLockedOut)
-        {
-            if (!ModelState.IsValid)
-            {
-                return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
-            }
+        //// This is used by the admin user to prevent a user from playing
+        //// PUT api/userinfo/6
+        //[HttpPut("{userName}", RouteName = "UserInfo")]
+        //public IHttpActionResult LockOutUser(string userName, [FromBody]bool isLockedOut)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+        //    }
 
-            var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
-            user.LockedOut = isLockedOut;
+        //    var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+        //    user.LockedOut = isLockedOut;
 
-            try
-            {
-                ctx.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return StatusCode(HttpStatusCode.InternalServerError);
-            }
+        //    try
+        //    {
+        //        ctx.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        return StatusCode(HttpStatusCode.InternalServerError);
+        //    }
 
-            return StatusCode(HttpStatusCode.OK);
-        }
+        //    return StatusCode(HttpStatusCode.OK);
+        //}
         
         protected override void Dispose(bool disposing)
         {
