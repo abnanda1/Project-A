@@ -25,17 +25,20 @@ namespace DoodleThings.Controllers
         }
 
         // This is used to find a game that the user is currently playing
-        [HttpGet("{userId}")]
-        public Game GetCurrentGameForPlayer(string userId)
+        [HttpGet("{id}")]
+        public Game GetCurrentGameForPlayer([FromUri(Name="id")]string userName)
         {
+            string userId = GetUserIdFromUserName(userName);
             return ctx.Games.FirstOrDefault(x => (x.DrawerUserId == userId || x.GuesserUserId == userId) && (x.State == GameState.InPlay || x.State == GameState.NotStarted) );
         }
 
         [HttpPost]
-        public IHttpActionResult AssignRandomAvailableGame(string userId)
+        public IHttpActionResult AssignRandomAvailableGame([FromUri(Name = "id")]string userName)
         {
             Game myGame;
             HttpResponseMessage response;
+
+            string userId = GetUserIdFromUserName(userName);
             var games = ctx.Games.Include("DrawerUser").Where(g => g.State == GameState.NotStarted).ToList();
 
             //If there aren't any games that are not started then create a new one
@@ -105,15 +108,15 @@ namespace DoodleThings.Controllers
 
         // This is called when the guesser successfully guesses before the game times out
         //[HttpPut("api/Game/GameSuccessfullyGuessed/{gameId}/{pointsEarned}")]
-        [HttpPost]
-        public IHttpActionResult GameSuccessfullyGuessed([FromUri]int gameId, [FromUri]int pointsEarned)
+        [HttpPut]
+        public IHttpActionResult GameSuccessfullyGuessed([FromUri(Name="id")]int gameId, [FromUri]int pointsEarned)
         {
             if (!ModelState.IsValid)
             {
                 return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
             }
 
-            Game myGame = ctx.Games.FirstOrDefault(g => g.GameId == gameId);
+            Game myGame = ctx.Games.Include("DrawerUser").FirstOrDefault(g => g.GameId == gameId);
 
             if (myGame == null)
             {
@@ -139,8 +142,9 @@ namespace DoodleThings.Controllers
         }
 
         // This is called when the guesser successfully guesses before the game times out
-        [HttpPut("api/Game/GameTimedOut/{gameId}")]
-        public IHttpActionResult GameTimedOut(int gameId)
+        //[HttpPut("api/Game/GameTimedOut/{gameId}")]
+        [HttpPut]
+        public IHttpActionResult GameTimedOut([FromUri(Name="id")]int gameId)
         {
             if (!ModelState.IsValid)
             {
@@ -169,6 +173,10 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
 
+        private string GetUserIdFromUserName(string userName)
+        {
+            return ctx.UserInfos.FirstOrDefault(u => u.UserName == userName).UserInfoId;
+        }
         protected override void Dispose(bool disposing)
         {
             ctx.Dispose();

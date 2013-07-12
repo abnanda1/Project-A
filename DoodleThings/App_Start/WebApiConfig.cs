@@ -17,9 +17,15 @@ namespace DoodleThings
 
             config.MapHttpAttributeRoutes();
 
+            config.Routes.MapHttpRoute(
+            name: "DefaultApi",
+            routeTemplate: "api/{controller}/{id}",
+            defaults: new { id = RouteParameter.Optional }
+            );
+
             // Uncomment the following line of code to enable a default non-attribute route.
             config.Routes.MapHttpRoute(
-                name: "DefaultApi",
+                name: "DefaultApiWithAction",
                 routeTemplate: "api/{controller}/{action}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
