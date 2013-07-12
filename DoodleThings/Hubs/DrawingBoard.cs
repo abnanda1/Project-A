@@ -3,6 +3,7 @@ using DoodleThings.Models;
 using Microsoft.AspNet.SignalR;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Linq;
 
 public class DrawingBoard : Hub
 {
@@ -10,6 +11,7 @@ public class DrawingBoard : Hub
     private static readonly ConcurrentDictionary<string, string> _games = new ConcurrentDictionary<string, string>();
     private static readonly UserInfoController _userInfoController = new UserInfoController();
     private static readonly GameController _gameController = new GameController();
+    private static ProjectAContext ctx = new ProjectAContext();
 
     public override Task OnConnected()
     {
@@ -95,9 +97,10 @@ public class DrawingBoard : Hub
         return base.OnDisconnected();
     }
 
-    public void SubmitAnswer(string answer)
+    public void SubmitAnswer(string answer, int gameId)
     {
-        Game game = _gameController.GetCurrentGameForPlayer(Clients.Caller.UserName);
+        //Game game = _gameController.GetCurrentGameForPlayer(Clients.Caller.UserName);
+        Game game = ctx.Games.Include("DrawerUser").Include("Question").FirstOrDefault<Game>(g => g.GameId == gameId);
         string otherPlayerConnId = "";
         if (Clients.Caller.UserName == game.DrawerUser.UserName)
         {

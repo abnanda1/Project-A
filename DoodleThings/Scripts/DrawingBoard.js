@@ -110,13 +110,13 @@
     $('#send-answer').submit(function () {
         var userAnswer = $('#user-answer').val();
 
-        hub.server.submitAnswer(userAnswer);
+        hub.server.submitAnswer(userAnswer, hub.state.GameId);
 
         $('#new-message').val('');
         $('#new-message').focus();
     });
 
-    function endGame(status) {
+    hub.client.endGame = function(status) {
         if (status == "Correct") {
             alert("Successfully Guessed! Game Over!");
         }
