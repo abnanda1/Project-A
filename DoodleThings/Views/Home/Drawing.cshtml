@@ -28,7 +28,7 @@
         @*<div> <script> document.write($.cookie("userid")) </script></div>*@
 
         <div>
-            <label for="color">Color: </label>
+            <label id="colorLabel" for="color">Color: </label>
             <select id="color">
                 <option>black</option>
                 <option>red</option>
@@ -43,6 +43,11 @@
         <div>
             <button id="clear">Clear canvas</button>
         </div>
+        <div id="outputArea"></div>
+        <form id="send-answer" action="#">
+            <input type="text" id="user-answer" />
+            <input type="submit" id="send" value="Send" class="send" />
+        </form>
     </div>
 </body>
 

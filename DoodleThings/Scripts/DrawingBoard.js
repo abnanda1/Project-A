@@ -89,22 +89,56 @@
 
     hub.client.waitForPlayer = function () {
         hub.state.Drawer = false;
+        $("#outputArea").text("We are finding another player for you. Should be anytime now.");
     }
 
-    hub.client.startGame = function () {
-        $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: endGame });
+    hub.client.startGame = function (question) {
+        $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: gameTimeout });
+        if (hub.state.Drawer == true) {
+            $("#outputArea").text("You need to draw the following: " + question);
+            $('#send-answer').hide();
+        }
+        else {
+            $("#outputArea").text("You need to guess what the other player is drawing and enter your answer in the box below.");
+            $("#color").hide();
+            $("#colorLabel").hide();
+            $("#clear").hide();
+        }
         alert('Game has started');
     }
 
-    function endGame() {
-        hub.server.endGame();
+    $('#send-answer').submit(function () {
+        var userAnswer = $('#user-answer').val();
+
+        hub.server.submitAnswer(userAnswer);
+
+        $('#new-message').val('');
+        $('#new-message').focus();
+    });
+
+    function endGame(status) {
+        if (status == "Correct") {
+            alert("Successfully Guessed! Game Over!");
+        }
+        else if (status = "Incorrect") {
+            alert("Incorrect Answer! Game Over!");
+        }
+    }
+
+    function gameTimeout() {
+        alert("Time Over!!");
+        hub.server.gameTimeout();
     }
 
     hub.client.setDrawerState = function (value) {
-        hub.client.Drawer = value;
+        hub.state.Drawer = value;
     }
 
     hub.client.setGameId = function (gameId) {
-        hub.client.GameId = gameId;
+        hub.state.GameId = gameId;
+    }
+
+    hub.client.write = function (msg) {
+        $("#outputArea").text(msg);
     }
 });

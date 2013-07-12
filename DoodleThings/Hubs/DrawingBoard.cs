@@ -16,7 +16,7 @@ public class DrawingBoard : Hub
         string currentPlayerName = Context.User.Identity.Name;
 
         // Set or update the player's values
-        Clients.Caller.userName = currentPlayerName;
+        Clients.Caller.UserName = currentPlayerName;
         _userInfoController.UpdateConnectionId(currentPlayerName, Context.ConnectionId);
 
         Game game = _gameController.AssignRandomAvailableGame(currentPlayerName);
@@ -24,10 +24,10 @@ public class DrawingBoard : Hub
         // Set game specific states
         Clients.Caller.GameId = game.GameId;
         string otherPlayerConnId = "";
-      
+
         if (game.State == GameState.InPlay)
         {
-            if (Clients.Caller.userName == game.DrawerUser.UserName)
+            if (Clients.Caller.UserName == game.DrawerUser.UserName)
             {
                 Clients.Caller.Drawer = true;
                 otherPlayerConnId = game.GuesserUser.ConnectionId;
@@ -43,17 +43,17 @@ public class DrawingBoard : Hub
                 //Clients.Client(otherPlayerConnId).Drawer = true;
                 _games.TryAdd(otherPlayerConnId, Context.ConnectionId);
             }
-            
+
             Clients.Client(otherPlayerConnId).setGameId(game.GameId);
 
-            Clients.Caller.startGame();
-            Clients.Client(otherPlayerConnId).startGame();
+            Clients.Caller.startGame(game.Question.AnswerText);
+            Clients.Client(otherPlayerConnId).startGame(game.Question.AnswerText);
         }
         else
         {
             Clients.Caller.waitForPlayer();
         }
-              
+
         return base.OnConnected();
     }
 
@@ -71,9 +71,14 @@ public class DrawingBoard : Hub
         }
     }
 
+    public void GameTimeout()
+    {
+
+    }
+
     public void EndGame()
     {
-        Clients.Caller.showAlert("Game Ended");
+        // Clients.Caller.showAlert("Game Ended");
         // Need too add logic to remove the mapping when the guesser leaves
         // Update both the user's status
     }
@@ -87,6 +92,32 @@ public class DrawingBoard : Hub
     {
         EndGame();
         return base.OnDisconnected();
+    }
+
+    public void SubmitAnswer(string answer)
+    {
+        Game game = _gameController.GetCurrentGameForPlayer(Clients.Caller.UserName);
+        string otherPlayerConnId = "";
+        if (Clients.Caller.UserName == game.DrawerUser.UserName)
+        {
+            otherPlayerConnId = game.GuesserUser.ConnectionId;
+        }
+        else
+        {
+            otherPlayerConnId = game.DrawerUser.ConnectionId;
+        }
+
+        if (game.Question.AnswerText.ToLower() == answer.ToLower())
+        {
+            Clients.Caller.endGame("Correct");
+            Clients.Client(otherPlayerConnId).endGame("Correct");
+            //_gameController.GameSuccessfullyGuessed(game.GameId, 10);
+        }
+        else
+        {
+            Clients.Caller.endGame("Incorrect");
+            Clients.Client(otherPlayerConnId).endGame("Incorrect");
+        }
     }
 
     public void UpdateState()
