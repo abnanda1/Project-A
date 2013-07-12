@@ -38,7 +38,7 @@ header, .header {
     }
 
 #userSettings {
-    float: right;
+    
 }
 
     #userSettings > form:before {
@@ -265,7 +265,7 @@ footer {
     -moz-box-shadow: 10px 10px 9px rgba(0, 0, 0, 0.22);
     -webkit-box-shadow: 10px 10px 9px rgba(0, 0, 0, 0.22);
     box-shadow: 10px 10px 9px rgba(0, 0, 0, 0.22);
-    background-color: #ffc;
+    background-color: #fff;
     vertical-align: top;
 }
 
@@ -276,7 +276,7 @@ footer {
         left: 0;
         border-width: 0 0 24px 24px;
         border-style: solid;
-        border-color: #f6f6c7 #fff;
+        border-color: #f6f6f7 #fff;
     }
 
     .todoList header, .todoList .header {

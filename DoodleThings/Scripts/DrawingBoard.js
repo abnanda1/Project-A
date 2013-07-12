@@ -25,7 +25,7 @@
     })
     .mousemove(function (e) {
         if (buttonPressed && hub.state.Drawer) {
-            setPoint(e.offsetX, e.offsetY, $("#color").val());
+            setPoint(e.offsetX, e.offsetY,'black');
         }
     });
 

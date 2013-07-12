@@ -1,30 +1,6 @@
 ﻿<div data-bind="visible: loading">Loading...</div>
 <div id="todoPanel" data-bind="visible: !loading()">
-    <li>@Html.ActionLink("Play Doodle Something", "Drawing", "Home", new { area = "" }, null)</li>
-    <div id="lists" data-bind="foreach: todoLists, visible: todoLists().length > 0">
-        <div class="todoList">
-            <div class="header">
-                <form data-bind="validate: true">
-                    <input class="required" data-bind="value: title, selected: isEditingListTitle, blurOnEnter: true" />
-                </form>
-            </div>
-
-            <a href="#" class="deletelist" data-bind="click: $parent.deleteTodoList">X</a>
-
-            <ul data-bind="foreach: todos">
-                <li>
-                    <input type="checkbox" data-bind="checked: isDone" />
-                    <input class="todoItemInput" type="text" data-bind="value: title, disable: isDone, blurOnEnter: true" />
-                    <a href="#" data-bind="click: $parent.deleteTodo">X</a>
-                    <p class="error" data-bind="visible: errorMessage, text: errorMessage"></p>
-                </li>
-            </ul>
-
-            <form data-bind="submit: addTodo">
-                <input class="addTodo" type="text" data-bind="value: newTodoTitle, placeholder: 'Type here to add', blurOnEnter: true, event: { blur: addTodo }" />
-            </form>
-
-            <p class="error" data-bind="visible: errorMessage, text: errorMessage"></p>
-        </div>
-    </div>
-</div>
+    <div style=><h2>HOW TO PLAY</h2><div>
+    "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."                                        
+    <h2>@Html.ActionLink("Play Doodle Something", "Drawing", "Home", new { area = "" }, null)</h2>   
+    </div></div></div>

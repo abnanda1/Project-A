@@ -1,4 +1,4 @@
-﻿<div class="todoList" id="loginPanel">
+﻿<div class="____todolist" id="loginPanel">
     <section id="localLoginPanel">
         <h2>Log in</h2>
         <form id="loginForm">
@@ -26,8 +26,9 @@
                 <button type="submit" data-bind="click: loginClick, enable: !loggingIn()">Log in</button>
             </fieldset>
         </form>
+        <p>First time here? <a href="#" data-bind="click: registerClick">Sign up</a></p>
     </section>
-    <section id="socialLoginPanel">
+    @*<section id="socialLoginPanel">
         <h2>Log in using another service</h2>
         <div data-bind="visible: loadingExternalLogin">Loading...</div>
         <div data-bind="visible: !loadingExternalLogin()">
@@ -46,6 +47,6 @@
                 </fieldset>
             </form>
         </div>
-    </section>
-    <p>First time here? <a href="#" data-bind="click: registerClick">Sign up</a></p>
+    </section>*@
+ 
 </div>

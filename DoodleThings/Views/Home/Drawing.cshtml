@@ -1,5 +1,6 @@
 ﻿@{
     Layout = null;
+    ViewBag.Title = "Doodle Something";
 }
 
 <!DOCTYPE html>
@@ -21,33 +22,44 @@
             border: 2px solid #808080;
         }
     </style>
+    @Styles.Render("~/Content/css")
 </head>
 
 <body>
+    <header>
+        <h3>@Html.ActionLink("Doodle Something", "Index", "Home", new { area = "" }, null)</h3>
+    </header>
     <div>
-        @*<div> <script> document.write($.cookie("userid")) </script></div>*@
+            <div>
+                <label id="colorLabel" for="color">Color: </label>
+                <select id="color">
+                    <option>black</option>
+                    <option>red</option>
+                    <option>green</option>
+                    <option>blue</option>
+                    <option>yellow</option>
+                    <option>pink</option>
+                </select>
+            </div>
+            <div id="timer"></div>
+            <canvas id="canvas" width="600" height="320"></canvas>
+            <div>
+                <button id="clear">Clear canvas</button>
+            </div>
+            <div id="outputArea"></div>
+            <form id="send-answer" action="#">
+                <input type="text" id="user-answer" />
+                <input type="submit" id="send" value="Send" class="send" />
+            </form>
+        </div>
+    <div>
+        <nav>
+            <ul id="menu">
+                <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
+                </ul>
+            </nav>
 
-        <div>
-            <label id="colorLabel" for="color">Color: </label>
-            <select id="color">
-                <option>black</option>
-                <option>red</option>
-                <option>green</option>
-                <option>blue</option>
-                <option>yellow</option>
-                <option>pink</option>
-            </select>
-        </div>
-        <div id="timer"></div>
-        <canvas id="canvas" width="300" height="300"></canvas>
-        <div>
-            <button id="clear">Clear canvas</button>
-        </div>
-        <div id="outputArea"></div>
-        <form id="send-answer" action="#">
-            <input type="text" id="user-answer" />
-            <input type="submit" id="send" value="Send" class="send" />
-        </form>
+
     </div>
 </body>
 

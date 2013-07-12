@@ -4,35 +4,39 @@
 
 <div data-bind="with: loading">Loading...</div>
 <div style="display: none" data-bind="visible: true">
-    <div id="userSettings" data-bind="with: user">
-        @*<input id="userNameInput" type="hidden" data-bind="text: name">*@
-        Hello,<a id="userNameInput" href="#" data-bind="text: name, click: manage"></a>
-        &nbsp;<a href="#" data-bind="click: logOff">Log off</a>
-    </div>
     <div id="body">
         <header>
-            <h1>@ViewBag.Title</h1>
+            <h3>@Html.ActionLink("Doodle Something", "Index", "Home", new { area = "" }, null)</h3>
         </header>
 
         <div id="main-content">
             <div data-bind="foreach: errors">
                 <p class="error" data-bind="text: $data"></p>
+            </div>            
+            
+            <div>
+                <!-- ko with: todo -->
+                @Html.Partial("_Todo")
+                        <!-- /ko -->
+                        <!-- ko with: login -->
+                        @Html.Partial("_Login")
+                                <!-- /ko -->
+                                <!-- ko with: register -->
+                                @Html.Partial("_Register")
+                                        <!-- /ko -->
+                                        <!-- ko with: registerExternal -->
+                                        @Html.Partial("_RegisterExternal")
+                                                <!-- /ko -->
+                                                <!-- ko with: manage -->
+                                                @Html.Partial("_Manage")
+                                                        <!-- /ko -->
+                                                    </div>
+            <div>
+              
+                <div id="userSettings" data-bind="with: user">                    
+                    <h3><a href="#" data-bind="click: logOff">Log off</a> &nbsp; &nbsp; <b><span data-bind="text: name, click: manage"></span></b></h3>
+                </div>
             </div>
-            <!-- ko with: todo -->
-            @Html.Partial("_Todo")
-            <!-- /ko -->
-            <!-- ko with: login -->
-            @Html.Partial("_Login")
-            <!-- /ko -->
-            <!-- ko with: register -->
-            @Html.Partial("_Register")
-            <!-- /ko -->
-            <!-- ko with: registerExternal -->
-            @Html.Partial("_RegisterExternal")
-            <!-- /ko -->
-            <!-- ko with: manage -->
-            @Html.Partial("_Manage")
-            <!-- /ko -->
         </div>
     </div>
 </div>
@@ -43,10 +47,3 @@
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/todo")
 }
-
-<script>
-    $(function () {
-        //alert($("#userSettings"));
-        //$.cookie('userid', 'hello');
-    })
-</script>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewBag.Title - DoodleSomething</title>
+    <title>@ViewBag.Title - Doodle Something</title>
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <meta name="viewport" content="width=device-width" />
     <script src="~/Scripts/jquery-1.8.2.min.js"></script>
@@ -13,13 +13,11 @@
 <body>
     @RenderBody()
 
-        <nav>
+        @*<nav>
             <ul id="menu">
-@*                <li>@Html.ActionLink("Todo List", "Index", "Home", new { area = "" }, null)</li>*@
-                  <li>@Html.ActionLink("Play Doodle Something", "Drawing", "Home", new { area = "" }, null)</li>
-@*                <li>@Html.ActionLink("API", "Index", "Help", new { area = "HelpPage" }, null)</li>*@
+                  <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
             </ul>
-        </nav>
+        </nav>*@
 
     @RenderSection("Scripts", required: false)
 </body>
