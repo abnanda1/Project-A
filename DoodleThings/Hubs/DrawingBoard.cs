@@ -1,18 +1,26 @@
-﻿using DoodleThings.Controllers;
+﻿using DoodleThings;
+using DoodleThings.Controllers;
 using DoodleThings.Models;
 using Microsoft.AspNet.SignalR;
+using Microsoft.Owin.Security;
 using System;
 using System.Collections.Concurrent;
+using System.Globalization;
+using System.Security.Claims;
 using System.Threading.Tasks;
+
 public class DrawingBoard : Hub
 {
     // Map of connection id to connection id
     private static readonly ConcurrentDictionary<string, string> _games = new ConcurrentDictionary<string, string>();
-    private static readonly UserInfoController _userInfoController = new UserInfoController();
-
     public override Task OnConnected()
-    {
+    {        
+        string name = Context.User.Identity.Name;
+
         Clients.Caller.Drawer = true;
+        Clients.Caller.updateState();
+
+        //string name = Context.User.Identity.Name;
         //    // Get User id from session cookie
     //    Cookie userNameCookie;
 
@@ -73,5 +81,9 @@ public class DrawingBoard : Hub
     {
         EndGame();
         return base.OnDisconnected();
+    }
+
+    public void UpdateState()
+    {
     }
 }

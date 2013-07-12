@@ -186,6 +186,12 @@ namespace DoodleThings.Controllers
             return OK();
         }
 
+        public async Task<IHttpActionResult> Cookie()
+        {
+            
+            return OK();
+        }
+
         // POST api/Account/Login
         [AllowAnonymous]
         [HttpPost("Login")]

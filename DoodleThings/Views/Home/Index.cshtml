@@ -5,10 +5,10 @@
 <div data-bind="with: loading">Loading...</div>
 <div style="display: none" data-bind="visible: true">
     <div id="userSettings" data-bind="with: user">
-        Hello, <a href="#" data-bind="text: name, click: manage"></a>
+        @*<input id="userNameInput" type="hidden" data-bind="text: name">*@
+        Hello,<a id="userNameInput" href="#" data-bind="text: name, click: manage"></a>
         &nbsp;<a href="#" data-bind="click: logOff">Log off</a>
     </div>
-
     <div id="body">
         <header>
             <h1>@ViewBag.Title</h1>
@@ -43,3 +43,10 @@
     @Scripts.Render("~/bundles/jqueryval")
     @Scripts.Render("~/bundles/todo")
 }
+
+<script>
+    $(function () {
+        //alert($("#userSettings"));
+        //$.cookie('userid', 'hello');
+    })
+</script>

@@ -1,5 +1,13 @@
 ﻿$(function () {
 
+    function getSecurityHeaders() {
+        var accessToken = sessionStorage["accessToken"] || localStorage["accessToken"];
+
+        if (accessToken) {
+            return accessToken;
+        }
+    }
+
     var canvas = $("#canvas");
     var hub = $.connection.drawingBoard;
 
@@ -18,7 +26,7 @@
         buttonPressed = false;
     })
     .mousemove(function (e) {
-        if (buttonPressed) {
+        if (buttonPressed && hub.state.Drawer) {
             setPoint(e.offsetX, e.offsetY, $("#color").val());
         }
     });
@@ -46,7 +54,7 @@
     });
 
     canvas.mousemove(function (e) {
-        if (buttonPressed && connected) {
+        if (buttonPressed && connected && hub.state.Drawer) {
             hub.server.broadcastPoint(e.offsetX, e.offsetY);
         }
     });
@@ -66,11 +74,16 @@
     };
 
     // Voila! 
+    // hub.state.Drawer = false;
+    $.connection.hub.qs = 'token=' + getSecurityHeaders();
     $.connection.hub.start()
     .done(function () {
         connected = true;
-      
     });
+
+    hub.client.updateState = function () {
+        hub.server.updateState();
+    }
 
     hub.client.showAlert = function (msg) {
         alert(msg);

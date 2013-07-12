@@ -47,6 +47,8 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
        
+            var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+            user.UserInfoId = connectionId;
         protected override void Dispose(bool disposing)
         {
             ctx.Dispose();

@@ -20,6 +20,7 @@ namespace DoodleThings
                 "~/Scripts/knockout-{version}.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/todo").Include(
+                "~/Scripts/jquery.cookie.js",
                 "~/Scripts/app/ajaxPrefilters.js",
                 "~/Scripts/app/app.bindings.js",
                 "~/Scripts/app/app.datamodel.js",

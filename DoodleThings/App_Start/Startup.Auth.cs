@@ -17,6 +17,8 @@ namespace DoodleThings
             // Enable the application to use a cookie to temporarily store information about a user logging in with a third party login provider
             app.UseExternalSignInCookie();
 
+            app.UseApplicationSignInCookie();
+
             // Uncomment the following lines to enable logging in with third party login providers
             //app.UseMicrosoftAccountAuthentication(
             //    clientId: "",
