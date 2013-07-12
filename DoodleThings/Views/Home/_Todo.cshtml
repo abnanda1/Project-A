@@ -1,7 +1,6 @@
 ﻿<div data-bind="visible: loading">Loading...</div>
 <div id="todoPanel" data-bind="visible: !loading()">
-    <button data-bind="click: addTodoList">Add Todo list</button>
-
+    <li>@Html.ActionLink("Play Doodle Something", "Drawing", "Home", new { area = "" }, null)</li>
     <div id="lists" data-bind="foreach: todoLists, visible: todoLists().length > 0">
         <div class="todoList">
             <div class="header">

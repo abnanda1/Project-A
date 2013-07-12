@@ -31,17 +31,20 @@ public class DrawingBoard : Hub
             {
                 Clients.Caller.Drawer = true;
                 otherPlayerConnId = game.GuesserUser.ConnectionId;
-                Clients.Client(otherPlayerConnId).Drawer = false;
+                Clients.Client(otherPlayerConnId).setDrawerState(false);
+                //Clients.Client(otherPlayerConnId).Drawer = false;
                 _games.TryAdd(Context.ConnectionId, otherPlayerConnId);
             }
             else
             {
                 Clients.Caller.Drawer = false;
                 otherPlayerConnId = game.DrawerUser.ConnectionId;
-                Clients.Client(otherPlayerConnId).Drawer = true;
+                Clients.Client(otherPlayerConnId).setDrawerState(true);
+                //Clients.Client(otherPlayerConnId).Drawer = true;
                 _games.TryAdd(otherPlayerConnId, Context.ConnectionId);
             }
-            Clients.Client(otherPlayerConnId).GameId = game.GameId;
+            
+            Clients.Client(otherPlayerConnId).setGameId(game.GameId);
 
             Clients.Caller.startGame();
             Clients.Client(otherPlayerConnId).startGame();

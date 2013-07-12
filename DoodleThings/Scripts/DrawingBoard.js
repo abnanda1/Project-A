@@ -92,11 +92,19 @@
     }
 
     hub.client.startGame = function () {
-        alert('Press enter to start game');
         $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: endGame });
+        alert('Game has started');
     }
 
     function endGame() {
         hub.server.endGame();
+    }
+
+    hub.client.setDrawerState = function (value) {
+        hub.client.Drawer = value;
+    }
+
+    hub.client.setGameId = function (gameId) {
+        hub.client.GameId = gameId;
     }
 });
