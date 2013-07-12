@@ -73,7 +73,8 @@ public class DrawingBoard : Hub
 
     public void GameTimeout()
     {
-
+        Game game = _gameController.GetCurrentGameForPlayer(Clients.Caller.UserName);
+        _gameController.GameTimedOut(game.GameId);
     }
 
     public void EndGame()
@@ -111,13 +112,16 @@ public class DrawingBoard : Hub
         {
             Clients.Caller.endGame("Correct");
             Clients.Client(otherPlayerConnId).endGame("Correct");
+            _gameController.GameSuccessfullyGuessed(game.GameId, 1);
             //_gameController.GameSuccessfullyGuessed(game.GameId, 10);
         }
         else
         {
             Clients.Caller.endGame("Incorrect");
-            Clients.Client(otherPlayerConnId).endGame("Incorrect");
+            Clients.Client(otherPlayerConnId).endGame("Incorrect");            
         }
+
+        
     }
 
     public void UpdateState()
