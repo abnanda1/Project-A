@@ -93,7 +93,7 @@
     }
 
     hub.client.startGame = function (question) {
-        $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: gameTimeout });
+        $("#timer").countdown({ until: '+2m30s', format: 'MS', onExpiry: gameTimeout });
         if (hub.state.Drawer == true) {
             $("#outputArea").text("You need to draw the following: " + question);
             $('#send-answer').hide();
