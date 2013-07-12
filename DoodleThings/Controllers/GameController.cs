@@ -33,7 +33,7 @@ namespace DoodleThings.Controllers
         }
 
         [HttpPost]
-        public IHttpActionResult AssignRandomAvailableGame([FromUri(Name = "id")]string userName)
+        public Game AssignRandomAvailableGame([FromUri(Name = "id")]string userName)
         {
             Game myGame;
             HttpResponseMessage response;
@@ -72,8 +72,9 @@ namespace DoodleThings.Controllers
 
                 if (myGame.DrawerUserId == userId && myGame.GuesserUserId == userId)
                 {
-                    response = Request.CreateResponse(HttpStatusCode.BadRequest, myGame);
-                    return Message(response);
+                    //response = Request.CreateResponse(HttpStatusCode.BadRequest, myGame);
+                    return myGame;
+                    //return Message(response);
                 }
                 //Change guesser of the game to current user. Keep drawer as is. Change game state to InPlay. Change Started time. Add a question
                 int randomInt = rand.Next(2);
@@ -101,9 +102,10 @@ namespace DoodleThings.Controllers
             }
             ctx.SaveChanges();
 
-            response = Request.CreateResponse(HttpStatusCode.Created, myGame);
-          //  response.Headers.Location = new Uri(Url.Link("Game", new { id = myGame.GameId }));
-            return Message(response);
+            return myGame;
+            //response = Request.CreateResponse(HttpStatusCode.Created, myGame);
+            ////  response.Headers.Location = new Uri(Url.Link("Game", new { id = myGame.GameId }));
+            //return Message(response);
         }
 
         // This is called when the guesser successfully guesses before the game times out

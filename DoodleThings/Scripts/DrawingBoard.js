@@ -11,8 +11,6 @@
     var canvas = $("#canvas");
     var hub = $.connection.drawingBoard;
 
-    $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: endGame });
-
     hub.state.color = $("#color").val(); // Accessible from server 
     var connected = false;
 
@@ -87,6 +85,15 @@
 
     hub.client.showAlert = function (msg) {
         alert(msg);
+    }
+
+    hub.client.waitForPlayer = function () {
+        hub.state.Drawer = false;
+    }
+
+    hub.client.startGame = function () {
+        alert('Press enter to start game');
+        $("#timer").countdown({ until: '+50s', format: 'MS', onExpiry: endGame });
     }
 
     function endGame() {

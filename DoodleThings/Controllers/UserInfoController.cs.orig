@@ -1,0 +1,117 @@
+using DoodleThings.Models;
+using System;
+using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Web.Http;
+
+namespace DoodleThings.Controllers
+{
+    [Authorize]
+    [RoutePrefix("api/UserInfo")]
+    public class UserInfoController : ApiController
+    {
+        private ProjectAContext ctx = new ProjectAContext();
+
+        // This is used to create a new user
+        // GET api/userinfo/1
+        [HttpGet("{userInfoId}")]
+        public UserInfo GetUserInfoFromId(string userInfoId)
+        {
+            return ctx.UserInfos.FirstOrDefault(u => u.UserInfoId == userInfoId);
+        }
+
+        // This is used to update the connection id of an existing user
+        // PUT api/userinfo
+       [HttpPut("{userInfoId}")]
+        public IHttpActionResult UpdateConnectionId(string userInfoId, string connectionId)
+        {
+            var userInfo = ctx.UserInfos.FirstOrDefault(u => u.UserInfoId == userInfoId);
+            if (userInfo == null)
+            {
+                return StatusCode(HttpStatusCode.NotAcceptable);
+            }
+
+            userInfo.ConnectionId = connectionId;
+            try
+            {
+                ctx.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return StatusCode(HttpStatusCode.InternalServerError);
+            }
+
+            return StatusCode(HttpStatusCode.OK);
+        }
+<<<<<<< HEAD
+       
+=======
+
+
+        public void UpdateConnectionId(string userName, string connectionId)
+        {
+            var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+            user.UserInfoId = connectionId;
+        }
+
+        ////This is used when the user logs out
+        //// PUT api/userinfo/6
+        //[HttpPut("{userName}", RouteName = "UserInfo")]
+        //public IHttpActionResult LogOutUser(string userName)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+        //    }
+
+        //    var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+        //    user.State = UserState.LoggedOut;
+
+        //    try
+        //    {
+        //        ctx.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        return StatusCode(HttpStatusCode.InternalServerError);
+        //    }
+
+        //    return StatusCode(HttpStatusCode.OK);
+        //}
+
+        //// This is used by the admin user to prevent a user from playing
+        //// PUT api/userinfo/6
+        //[HttpPut("{userName}", RouteName = "UserInfo")]
+        //public IHttpActionResult LockOutUser(string userName, [FromBody]bool isLockedOut)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return Message(Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState));
+        //    }
+
+        //    var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+        //    user.LockedOut = isLockedOut;
+
+        //    try
+        //    {
+        //        ctx.SaveChanges();
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        return StatusCode(HttpStatusCode.InternalServerError);
+        //    }
+
+        //    return StatusCode(HttpStatusCode.OK);
+        //}
+        
+>>>>>>> WIP
+        protected override void Dispose(bool disposing)
+        {
+            ctx.Dispose();
+            base.Dispose(disposing);
+        }
+    }
+}

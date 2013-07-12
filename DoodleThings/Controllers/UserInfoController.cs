@@ -26,9 +26,9 @@ namespace DoodleThings.Controllers
         // This is used to update the connection id of an existing user
         // PUT api/userinfo
        [HttpPut("{userInfoId}")]
-        public IHttpActionResult UpdateConnectionId(string userInfoId, string connectionId)
+        public IHttpActionResult UpdateConnectionId(string userName, string connectionId)
         {
-            var userInfo = ctx.UserInfos.FirstOrDefault(u => u.UserInfoId == userInfoId);
+            var userInfo = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
             if (userInfo == null)
             {
                 return StatusCode(HttpStatusCode.NotAcceptable);
@@ -47,8 +47,8 @@ namespace DoodleThings.Controllers
             return StatusCode(HttpStatusCode.OK);
         }
        
-            var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
-            user.UserInfoId = connectionId;
+            //var user = ctx.UserInfos.FirstOrDefault(u => u.UserName == userName);
+            //user.UserInfoId = connectionId;
         protected override void Dispose(bool disposing)
         {
             ctx.Dispose();

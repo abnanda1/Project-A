@@ -1,44 +1,56 @@
-﻿using DoodleThings;
-using DoodleThings.Controllers;
+﻿using DoodleThings.Controllers;
 using DoodleThings.Models;
 using Microsoft.AspNet.SignalR;
-using Microsoft.Owin.Security;
-using System;
 using System.Collections.Concurrent;
-using System.Globalization;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 public class DrawingBoard : Hub
 {
     // Map of connection id to connection id
     private static readonly ConcurrentDictionary<string, string> _games = new ConcurrentDictionary<string, string>();
-    private static readonly UserInfoController _userInfoController;
+    private static readonly UserInfoController _userInfoController = new UserInfoController();
+    private static readonly GameController _gameController = new GameController();
 
     public override Task OnConnected()
     {
-        string name = Context.User.Identity.Name;
+        string currentPlayerName = Context.User.Identity.Name;
 
-        Clients.Caller.Drawer = true;
-        Clients.Caller.updateState();
+        // Set or update the player's values
+        Clients.Caller.userName = currentPlayerName;
+        _userInfoController.UpdateConnectionId(currentPlayerName, Context.ConnectionId);
 
-        // Update the new user's values
-        Clients.Caller.userName = name;
-        Clients.Caller.Drawer = true;
-        // Update the Game table with who is the drawer and who is the guesser
-        _userInfoController.UpdateConnectionId(name, Context.ConnectionId);
+        Game game = _gameController.AssignRandomAvailableGame(currentPlayerName);
 
-        UserInfo player2 = _userInfoController.GetRandomAvailablePlayer(name);
-        Clients.Client(player2.UserInfoId).Drawer = false;
-
-        if (player2 != null)
+        // Set game specific states
+        Clients.Caller.GameId = game.GameId;
+        string otherPlayerConnId = "";
+      
+        if (game.State == GameState.InPlay)
         {
-            // We are assuming that the second user here is the drawer
-            _games.TryAdd(Context.ConnectionId, player2.UserInfoId);
+            if (Clients.Caller.userName == game.DrawerUser.UserName)
+            {
+                Clients.Caller.Drawer = true;
+                otherPlayerConnId = game.GuesserUser.ConnectionId;
+                Clients.Client(otherPlayerConnId).Drawer = false;
+                _games.TryAdd(Context.ConnectionId, otherPlayerConnId);
+            }
+            else
+            {
+                Clients.Caller.Drawer = false;
+                otherPlayerConnId = game.DrawerUser.ConnectionId;
+                Clients.Client(otherPlayerConnId).Drawer = true;
+                _games.TryAdd(otherPlayerConnId, Context.ConnectionId);
+            }
+            Clients.Client(otherPlayerConnId).GameId = game.GameId;
+
+            Clients.Caller.startGame();
+            Clients.Client(otherPlayerConnId).startGame();
         }
-
-        // send a message to both the clients so that the UI can be updated
-
+        else
+        {
+            Clients.Caller.waitForPlayer();
+        }
+              
         return base.OnConnected();
     }
 
@@ -59,9 +71,7 @@ public class DrawingBoard : Hub
     public void EndGame()
     {
         Clients.Caller.showAlert("Game Ended");
-        string connectionId;
         // Need too add logic to remove the mapping when the guesser leaves
-        _games.TryRemove(Context.ConnectionId, out connectionId);
         // Update both the user's status
     }
 
