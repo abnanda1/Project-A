@@ -25,7 +25,7 @@
     })
     .mousemove(function (e) {
         if (buttonPressed && hub.state.Drawer) {
-            setPoint(e.offsetX, e.offsetY,'black');
+            setPoint(e.offsetX, e.offsetY, 'black');
         }
     });
 
@@ -127,6 +127,7 @@
 
     function gameTimeout() {
         alert("Time Over!!");
+        hub.state.Drawer = false;
         hub.server.gameTimeout();
     }
 
@@ -136,6 +137,12 @@
 
     hub.client.setGameId = function (gameId) {
         hub.state.GameId = gameId;
+    }
+
+    hub.client.stopTimer = function()
+    {
+        $("#timer").countdown('pause');
+        hub.state.Drawer = false;
     }
 
     hub.client.write = function (msg) {

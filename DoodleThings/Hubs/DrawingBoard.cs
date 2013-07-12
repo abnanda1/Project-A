@@ -108,6 +108,9 @@ public class DrawingBoard : Hub
             otherPlayerConnId = game.DrawerUser.ConnectionId;
         }
 
+        Clients.Caller.stopTimer();
+        Clients.Client(otherPlayerConnId).stopTimer();
+
         if (game.Question.AnswerText.ToLower() == answer.ToLower())
         {
             Clients.Caller.endGame("Correct");
