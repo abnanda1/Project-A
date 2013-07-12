@@ -11,7 +11,7 @@ using System.Data.Entity.Infrastructure;
 
 namespace DoodleThings.Controllers
 {
- //   [Authorize]
+    [Authorize]
     [RoutePrefix("api/Game")]
     public class GameController : ApiController
     {
